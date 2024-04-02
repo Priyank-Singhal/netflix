@@ -3,14 +3,12 @@ import Header from './Header'
 import { checkValidData } from '../utils/validate';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '../utils/firebase';
-import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { addUser } from '../utils/userSlice';
 
 const Login = () => {
   const [isAlreadyUser, setIsAlreadyUser] = useState(false);
   const [validationError, setValidationError] = useState(null);
-  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const toggleSignInForm = () => {
@@ -32,7 +30,6 @@ const Login = () => {
         .then((userCredential) => {
           // Signed in 
           // const user = userCredential.user;
-          navigate("/browse");
           // ...
         })
         .catch((error) => {
@@ -45,24 +42,24 @@ const Login = () => {
           // const user = userCredential.user;
           updateProfile(auth.currentUser, {
             displayName: name.current.value, photoURL: "https://example.com/jane-q-user/profile.jpg"
-          }).then(() => {
-            // Profile updated!
-            const { uid, displayName, email } = auth.currentUser;
-            dispatch(addUser({ uid: uid, name: displayName, email: email }));
-            navigate("/browse");
-          }).catch((error) => {
-            // An error occurred
-            setValidationError(error.message);
-            // ...
-          });
+          })
+            .then(() => {
+              // Profile updated!
+              const { uid, displayName, email } = auth.currentUser;
+              dispatch(addUser({ uid: uid, name: displayName, email: email }));
+            })
+            .catch((error) => {
+              // An error occurred
+              setValidationError(error.message);
+              // ...
+            });
           // ...
         })
-      // .catch((error) => {
-      //   const errorCode = error.code;
-      //   const errorMessage = error.message;
-      //   setValidationError(errorMessage);
-      //   // ..
-      // });
+      .catch((error) => {
+        const errorMessage = error.message;
+        setValidationError(errorMessage);
+        // ..
+      });
     }
   }
 
